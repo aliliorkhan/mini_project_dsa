@@ -215,6 +215,8 @@ class BrowserHistory{
         return file.eof() && !file.bad();
         }
 };
+
+#ifndef UNIT_TEST
 int main(){
     BrowserHistory history("google.com");
     int choice;
@@ -311,4 +313,4 @@ int main(){
 
     return 0;
 }
-
+#endif
