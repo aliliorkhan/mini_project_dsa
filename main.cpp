@@ -10,10 +10,14 @@ struct Node{
     string url;
 };
 
+struct DeletedPage {
+    Node* node;
+    int position;
+};
 
 class BrowserHistory{
     private:
-        stack<string> s;
+        stack<DeletedPage> s;
         int size=1;
         int capacity=50;
         Node* head;
@@ -26,7 +30,7 @@ class BrowserHistory{
         BrowserHistory(const BrowserHistory&) = delete;
         BrowserHistory& operator=(const BrowserHistory&) = delete;
         ~BrowserHistory(){
-            delete_history()
+            delete_history();
         }
         string current_page(){
             if(current == nullptr) return "";
@@ -89,53 +93,100 @@ class BrowserHistory{
             }
         }
         void delete_history(){
-            Node* pointer=head;
-            while(pointer!=nullptr){
+            Node* pointer = head;
+
+            while(pointer != nullptr){
                 Node* next_page = pointer->next;
                 delete pointer;
                 pointer = next_page;
             }
-            size=0;
-            head=current=nullptr;
+
+            while(!s.empty()){
+                delete s.top().node;
+                s.pop();
+            }
+
+            size = 0;
+            head = current = nullptr;
         }
         bool delete_url(string url){
-            if(head==nullptr)return false;
-            if(head->url==url){
-                s.push(url);
-                if(current==head)current=current->next;
-                Node* new1=head;
-                head=head->next;
-                if(head!=nullptr)head->prev=nullptr;
-                delete new1;
-                size--;
-                return true;
-            }
-            Node* pointer=head->next;
-            while(pointer!=nullptr){
-                if(pointer->url==url){
-                    s.push(url);
+            Node* pointer = head;
+            int position = 0;
+
+             while(pointer != nullptr){
+                if(pointer->url == url){
+
                     if(current == pointer){
                         if(pointer->next != nullptr)
                             current = pointer->next;
-                    else
-                        current = pointer->prev;
+                        else
+                            current = pointer->prev;
                     }
-                    Node* new1=pointer;
-                    pointer->prev->next=pointer->next;
-                    if(pointer->next!=nullptr)pointer->next->prev=pointer->prev;
+
+                    if(pointer->prev != nullptr)
+                        pointer->prev->next = pointer->next;
+                    else
+                        head = pointer->next;
+
+                    if(pointer->next != nullptr)
+                        pointer->next->prev = pointer->prev;
+
+                    pointer->prev = nullptr;
+                    pointer->next = nullptr;
+                    s.push({pointer, position});
+
                     size--;
-                    delete new1;
                     return true;
                 }
-                pointer=pointer->next;
-            }
+
+                pointer = pointer->next;
+                position++;
+            }       
+
             return false;
         }
+
         bool restore(){
-            if(s.empty())return false;
-            string f=s.top();
-            visit(f);
+            if(s.empty() || size >= capacity)
+                return false;
+
+            DeletedPage deleted = s.top();
             s.pop();
+
+            Node* node = deleted.node;
+            int position = deleted.position;
+
+            if(head == nullptr){
+                node->prev = nullptr;
+                node->next = nullptr;
+                head = node;
+                current = node;
+            }
+
+            else if(position == 0){
+                node->prev = nullptr;
+                node->next = head;
+                head->prev = node;
+                head = node;
+            }
+
+            else{
+                Node* before = head;
+
+                for(int i = 1; i < position && before->next != nullptr; i++){
+                    before = before->next;
+                }
+
+                node->prev = before;
+                node->next = before->next;
+
+                if(node->next != nullptr)
+                    node->next->prev = node;
+
+                before->next = node;
+            }
+
+            size++;
             return true;
         }
         bool export_history(string filename){
