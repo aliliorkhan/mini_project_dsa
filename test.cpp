@@ -18,42 +18,42 @@ int main(){
         }
     };
 
-// Test 1: Homepage
+// Test Homepage
     BrowserHistory history("google.com");
     check(history.current_page() == "google.com (page 1 out of 1)",
           "Homepage initialization");
 
-// Test 2: Visit
+// Test Visit
     history.visit("youtube.com");
     history.visit("facebook.com");
     check(history.current_page() == "facebook.com (page 3 out of 3)",
           "Visit pages");
 
-// Test 3: Back
+// Test Back
     check(history.back(1) == "youtube.com", "Back navigation");
 
-// Test 4: Forward
+// Test Forward
     check(history.forward(1) == "facebook.com", "Forward navigation");
 
-// Test 5: Back 100 steps
+// Test Back 100 steps
     check(history.back(100) == "google.com", "Back boundary");
 
-// Test 6: Forward 100 steps
+// Test Forward 100 steps
     check(history.forward(100) == "facebook.com", "Forward boundary");
 
-// Test 7: Branching
+// Test Branching
     history.back(1);
     history.visit("reddit.com");
     check(!history.delete_url("facebook.com"), "Branching history");
 
-// Test 8: Delete URL
+// Test Delete URL
     check(history.delete_url("youtube.com"), "Delete URL");
 
-// Test 9: Restore URL
+// Test Restore URL
     check(history.restore(), "Restore URL");
     check(history.back(1) == "youtube.com", "Restored position");
 
-// Test 10: Maximum capacity
+// Test Maximum capacity
     BrowserHistory capacity_test("google.com");
 
     for(int i = 1; i <= 51; i++){
@@ -63,7 +63,7 @@ int main(){
     check(capacity_test.back(100) == "page2.com",
           "Maximum capacity of 50 pages");
 
-// Test 11: Clear history
+// Test Clear history
     BrowserHistory clear_test("google.com");
     clear_test.delete_url("google.com");
     clear_test.delete_history();
@@ -71,7 +71,7 @@ int main(){
     check(clear_test.current_page() == "", "Clear history");
     check(!clear_test.restore(), "Clear restoration stack");
     
-// Test 12: Export and Import
+// Test Export and Import
     BrowserHistory file_test("google.com");
 
     file_test.visit("youtube.com");
@@ -100,7 +100,7 @@ int main(){
     check(!file_test.import_history("nonexistent_test_file_12345.txt"),
         "Import nonexistent file");
 
-// Test 13: Deleting first and last pages
+// Test deleting first and last pages
     BrowserHistory edge_test("google.com");
     edge_test.visit("youtube.com");
     edge_test.visit("facebook.com");
